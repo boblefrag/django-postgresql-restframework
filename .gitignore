@@ -1,0 +1,13 @@
+*~
+#*#
+*.log
+*.pot
+*.pyc
+*.swp
+*.sqlite3
+.DS_Store
+*.egg-info/
+.coverage
+.tox
+dist
+venv
