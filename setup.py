@@ -38,7 +38,8 @@ KEYWORDS = []
 PACKAGES = [NAME.replace('-', '_')]
 REQUIREMENTS = [
     "Django",
-    "djangorestframework"
+    "djangorestframework",
+    "psycopg2"
 
 ]
 TEST_REQUIREMENTS = ['django-nose==1.2, coverage==3.7.1']
