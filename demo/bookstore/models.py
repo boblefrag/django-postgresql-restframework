@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from bookstore.manager import PostgreSQLManager
+from postgresql_restframework.manager import PostgreSQLManager
 
 
 class Location(models.Model):
@@ -10,8 +10,8 @@ class Location(models.Model):
 class Store(models.Model):
     name = models.CharField(max_length=250)
     location = models.ForeignKey(Location)
-    close_time = models.PositiveIntegerField(max_length=2)
-    open_time = models.PositiveIntegerField(max_length=2)
+    close_time = models.PositiveIntegerField()
+    open_time = models.PositiveIntegerField()
     open_date = models.DateField()
 
 
@@ -29,9 +29,9 @@ class Book(models.Model):
     genre = models.ForeignKey(Genre)
     editor = models.ForeignKey(Editor)
     store = models.ManyToManyField(Store)
-    price = models.PositiveIntegerField(max_length=3)
+    price = models.PositiveIntegerField()
     objects = PostgreSQLManager()
-    
+
 
 class Sale(models.Model):
     book = models.ForeignKey(Book)
