@@ -2,6 +2,8 @@ from django.db import models
 from django.db import connection
 from psycopg2 import extras
 from collections import OrderedDict
+from django.db.models.fields.related import ForeignKey
+from rest_framework.fields import Field
 extras.register_default_json(loads=lambda x: x)
 
 
@@ -21,9 +23,9 @@ class PostgreSQLQuerySet(models.QuerySet):
         select array_to_json(array_agg(row_to_json(t)))
         FROM({}) t"""
         sql = self.query.sql_with_params()
-        print self.__dict__
         args = (template.format(sql[0]),
                 sql[1])
+
         with connection.cursor() as c:
             c.execute(*args)
             result = c.fetchone()[0]
@@ -66,3 +68,30 @@ class PostgreSQLQuerySet(models.QuerySet):
             obj._setup_aggregate_query(list(added_aggregates))
 
         return obj
+
+    def nested_to_json(self, alias, fields, rel):
+        """return the queryset with a single related model nested.
+
+        alias: the key used to annotate the queryset, will be the key
+               of the resulting json object
+
+        fields: list of fields to use to represent the nested object
+
+        rel: the related field on the base model. Must be a ForeignKey
+        """
+
+        rel_field = self.model._meta.get_field(rel)
+        if not isinstance(rel_field, ForeignKey):
+            raise ValueError("{} is not a ForeignKey".format(rel))
+        select = ", ".join(['"{}"."{}"'.format(
+            rel_field.rel.to._meta.db_table,
+            f)for f in fields])
+
+        template = 'select row_to_json({0}) from (select {4} from "{1}" \
+where "{2}"."{3}" = "{1}"."id"){0}'.format(
+            alias,
+            rel_field.rel.to._meta.db_table,
+            self.model._meta.db_table,
+            rel_field.attname,
+            select)
+        return self.extra({'{}'.format(alias): template})

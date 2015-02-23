@@ -27,8 +27,11 @@ class PostgreSQLStringRelatedField(StringRelatedField):
         super(PostgreSQLStringRelatedField, self).__init__(**kwargs)
 
     def postgresql_queryset(self, queryset, **kwargs):
+        print self.attr
         f = "{}__{}".format(self.source, self.attr)
+        print f
         kwargs = {self.source: F(f)}
+        print kwargs
         return queryset.annotate(**kwargs)
 
 
@@ -53,3 +56,22 @@ class PostgreSQLHyperLinkedField(HyperlinkedRelatedField):
                                       output_field=CharField())
                   }
         return queryset.annotate(**kwargs)
+
+
+class SingleNestedSerializer(StringRelatedField):
+    """
+    Nest a relation into the json response
+    """
+    def __init__(self, **kwargs):
+        self.alias = kwargs.pop("alias")
+        self.rel = kwargs.pop("rel")
+        self.fields = kwargs.pop("fields")
+
+        super(StringRelatedField, self).__init__(**kwargs)
+
+    def postgresql_queryset(self, queryset, request=None):
+
+        return queryset.nested_to_json(
+            self.alias,
+            self.fields,
+            self.rel)
