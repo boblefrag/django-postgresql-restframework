@@ -1,9 +1,10 @@
-from django.db import models
-from django.db import connection
-from psycopg2 import extras
 from collections import OrderedDict
+
+from django.db import models, connection
 from django.db.models.fields.related import ForeignKey
-from rest_framework.fields import Field
+from psycopg2 import extras
+
+
 extras.register_default_json(loads=lambda x: x)
 
 

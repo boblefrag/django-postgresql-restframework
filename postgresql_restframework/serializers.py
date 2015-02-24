@@ -1,9 +1,8 @@
+from django.db.models import F, Value, CharField
+from django.db.models.functions import Concat
 from rest_framework import serializers
 from rest_framework.relations import (StringRelatedField,
                                       HyperlinkedRelatedField)
-from django.db.models import F, Func
-from django.db.models import Value, CharField
-from django.db.models.functions import Concat
 
 
 class PostgreSQLListSerializer(serializers.ListSerializer):
@@ -27,11 +26,8 @@ class PostgreSQLStringRelatedField(StringRelatedField):
         super(PostgreSQLStringRelatedField, self).__init__(**kwargs)
 
     def postgresql_queryset(self, queryset, **kwargs):
-        print self.attr
         f = "{}__{}".format(self.source, self.attr)
-        print f
         kwargs = {self.source: F(f)}
-        print kwargs
         return queryset.annotate(**kwargs)
 
 
